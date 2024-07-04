@@ -14,6 +14,7 @@ class ImageProcessorApp(QMainWindow):
         self.setWindowTitle("Image Processor")
         self.setGeometry(100, 100, 800, 600)
 
+        # Виджет для отображения изображений
         self.image_label = QLabel()
         self.image_label.setAlignment(Qt.AlignCenter)
 
@@ -21,6 +22,7 @@ class ImageProcessorApp(QMainWindow):
         self.scroll_area.setWidget(self.image_label)
         self.scroll_area.setWidgetResizable(True)
 
+        # Диалоговые окна для сообщений
         self.create_photo_msg_box = QMessageBox()
         self.create_photo_msg_box.setIcon(QMessageBox.Information)
         self.create_photo_msg_box.setText('Веб-камера запускается, подождите.')
@@ -37,10 +39,11 @@ class ImageProcessorApp(QMainWindow):
         self.information_msg_box.setText('Фото успешно создано!')
         self.information_msg_box.setWindowTitle('Информация')
 
+        # Кнопки управления
         self.load_button = QPushButton("Загрузить изображение")
         self.load_button.clicked.connect(self.load_image)
 
-        self.web_button = QPushButton("Сделать изображение с помощье веб-камеры")
+        self.web_button = QPushButton("Сделать изображение с помощью веб-камеры")
         self.web_button.clicked.connect(self.create_photo_msg_box.show)
         self.web_button.clicked.connect(self.web_image)
 
@@ -64,6 +67,7 @@ class ImageProcessorApp(QMainWindow):
         self.circle_button.clicked.connect(self.draw_circle)
         self.circle_button.setEnabled(False)
 
+        # Компоновка кнопок
         button_layout = QVBoxLayout()
         button_layout.addWidget(self.load_button)
         button_layout.addWidget(self.web_button)
@@ -73,6 +77,7 @@ class ImageProcessorApp(QMainWindow):
         button_layout.addWidget(self.negative_button)
         button_layout.addWidget(self.circle_button)
 
+        # Основная компоновка
         main_layout = QVBoxLayout()
         main_layout.addWidget(self.scroll_area)
         main_layout.addLayout(button_layout)
@@ -81,8 +86,9 @@ class ImageProcessorApp(QMainWindow):
         central_widget.setLayout(main_layout)
         self.setCentralWidget(central_widget)
 
-        self.img = None
+        self.img = None  # Переменная для хранения изображения
 
+    # Метод загрузки изображения
     def load_image(self):
         file_path, _ = QFileDialog.getOpenFileName(self,
                                                    "Загрузить изображение",
@@ -98,6 +104,7 @@ class ImageProcessorApp(QMainWindow):
                 self.negative_button.setEnabled(True)
                 self.circle_button.setEnabled(True)
 
+    # Метод для работы с веб-камерой
     def web_image(self):
         cap = cv2.VideoCapture(0)
         if not cap.isOpened():
@@ -128,10 +135,12 @@ class ImageProcessorApp(QMainWindow):
                 cv2.destroyAllWindows()
                 break
 
+    # Метод для показа изображения
     def show_image(self):
         if self.img is not None:
             self.display_image(self.img)
 
+    # Метод для выбора канала изображения
     def choose_channel(self):
         if self.img is not None:
             channels = ["Синий", "Зеленый", "Красный"]
@@ -158,6 +167,7 @@ class ImageProcessorApp(QMainWindow):
                     img_red[:, :, 1] = 0
                     self.display_image(img_red)
 
+    # Метод для поворота изображения
     def rotate_image(self):
         if self.img is not None:
             angle, ok = QInputDialog.getInt(self,
@@ -174,11 +184,13 @@ class ImageProcessorApp(QMainWindow):
                 rotated_img = cv2.warpAffine(self.img, M, (width, height))
                 self.display_image(rotated_img)
 
+    # Метод для создания негативного изображения
     def negative_image(self):
         if self.img is not None:
             negative_img = cv2.bitwise_not(self.img)
             self.display_image(negative_img)
 
+    # Метод для рисования круга на изображении
     def draw_circle(self):
         if self.img is not None:
             height, width = self.img.shape[:2]
@@ -201,8 +213,7 @@ class ImageProcessorApp(QMainWindow):
                     max_radius = min(x, y, width - x, height - y)
                     radius, ok = QInputDialog.getInt(self,
                                                      "Нарисовать круг",
-                                                     f"Радиус "
-                                                     f"(макс {max_radius}):",
+                                                     f"Радиус (макс {max_radius}):",
                                                      0,
                                                      1,
                                                      max_radius, 1)
@@ -212,9 +223,10 @@ class ImageProcessorApp(QMainWindow):
                                    radius, (0, 0, 255), -1)
                         self.display_image(circled_img)
 
+    # Метод для отображения изображения в QLabel
     def display_image(self, img):
         qformat = QImage.Format_Indexed8
-        if len(img.shape) == 3:  # rows[0], cols[1], channels[2]
+        if len(img.shape) == 3:
             qformat = QImage.Format_RGB888
         out_image = QImage(img, img.shape[1],
                            img.shape[0], img.strides[0], qformat)
