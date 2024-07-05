@@ -103,11 +103,13 @@ class ImageProcessorApp(QMainWindow):
                 self.rotate_button.setEnabled(True)
                 self.negative_button.setEnabled(True)
                 self.circle_button.setEnabled(True)
+                self.display_image(self.img)
 
     # Метод для работы с веб-камерой
     def web_image(self):
         cap = cv2.VideoCapture(0)
         if not cap.isOpened():
+            self.create_photo_msg_box.accept()
             self.warning_msg_box.exec()
             return
 
@@ -118,7 +120,7 @@ class ImageProcessorApp(QMainWindow):
                 self.warning_msg_box.exec()
                 break
             self.create_photo_msg_box.accept()
-            cv2.imshow("Нажмите на SPACE, чтобы сделать фото или ESCAPE, чтобы выйти из окна", frame)
+            cv2.imshow("Press SPACE to capture or ESCAPE to exit", frame)
             key = cv2.waitKey(1)
             if key == 27:
                 cv2.destroyAllWindows()
